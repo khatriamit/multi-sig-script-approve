@@ -1,0 +1,29 @@
+{
+  "name": "safe-multisig-automation",
+  "version": "1.0.0",
+  "description": "Automated 2-of-3 multisig transactions using Safe Protocol",
+  "main": "dist/safe-multisig.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node safe-multisig.ts",
+    "polygon-approve": "ts-node examples.ts polygon-approve",
+    "polygon-transfer": "ts-node examples.ts polygon-transfer",
+    "polygon-transfer-flow": "ts-node examples.ts polygon-transfer-flow",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@safe-global/protocol-kit": "^4.1.0",
+    "@safe-global/api-kit": "^2.5.0",
+    "@safe-global/safe-core-sdk-types": "^5.1.0",
+    "ethers": "^6.11.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
