@@ -30,7 +30,7 @@ npm start
 ### Basic Transaction
 
 ```typescript
-import { SafeMultisigManager } from './safe-multisig'
+import { SafeMultisigManager } from './servers/src/config'
 
 const config = {
   rpcUrl: 'https://rpc.ankr.com/eth',

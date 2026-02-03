@@ -6,6 +6,9 @@ node_modules/
 .env.local
 .env.*.local
 
+# Multi-server signing artifacts
+tx_folder/
+
 # Build
 dist/
 build/
