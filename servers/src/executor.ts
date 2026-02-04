@@ -16,7 +16,7 @@ import {
   getSignatureFile
 } from './config'
 
-async function main() {
+export async function main() {
   const payloadPath = path.resolve(process.cwd(), PAYLOAD_FILE)
   if (!fs.existsSync(payloadPath)) {
     console.error(`Missing ${PAYLOAD_FILE}. Run coordinator first.`)
@@ -43,7 +43,7 @@ async function main() {
     process.exit(1)
   }
 
-  const config = getFullConfig()
+  const config = await getFullConfig()
   const manager = new SafeMultisigManager(config)
   await manager.initialize()
 
@@ -56,7 +56,9 @@ async function main() {
   console.log('Transaction executed:', txHash)
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}

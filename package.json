@@ -6,14 +6,18 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node servers/src/coordinator.ts",
-    "server:coordinator": "ts-node servers/src/coordinator.ts",
+    "server:initate": "ts-node servers/src/coordinator.ts",
     "server:signer-1": "ts-node servers/src/signer-server-1.ts",
     "server:signer-2": "ts-node servers/src/signer-server-2.ts",
     "server:signer-3": "ts-node servers/src/signer-server-3.ts",
     "server:executor": "ts-node servers/src/executor.ts",
+    "flow": "ts-node servers/src/index.ts",
+    "store:secrets": "ts-node servers/aws/store-secrets-to-aws.ts",
+    "fetch:secrets": "ts-node servers/aws/fetch-secrets.ts",
     "test": "jest"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
     "@safe-global/protocol-kit": "^4.1.0",
     "@safe-global/api-kit": "^2.5.0",
     "@safe-global/safe-core-sdk-types": "^5.1.0",

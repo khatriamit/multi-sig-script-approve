@@ -17,7 +17,7 @@ import {
 
 const SIGNER_INDEX = 1 as const
 
-async function main() {
+export async function main() {
   const payloadPath = path.resolve(process.cwd(), PAYLOAD_FILE)
   if (!fs.existsSync(payloadPath)) {
     console.error(`Missing ${PAYLOAD_FILE}. Run coordinator first.`)
@@ -27,7 +27,8 @@ async function main() {
   const payload: TransactionPayload = JSON.parse(
     fs.readFileSync(payloadPath, 'utf-8')
   )
-  const config = getSignerOnlyConfig(SIGNER_INDEX)
+  const walletKey = process.env.BACKEND_WALLET_1!
+  const config = await getSignerOnlyConfig(SIGNER_INDEX, walletKey)
   const manager = new SafeMultisigManager(config)
   await manager.initialize()
 
@@ -40,7 +41,9 @@ async function main() {
   console.log(`Signer ${SIGNER_INDEX} signed. Signature written to ${outPath}`)
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}

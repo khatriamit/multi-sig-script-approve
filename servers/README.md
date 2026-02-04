@@ -48,3 +48,22 @@ tx_folder/
 - Signer server N: only `SIGNER_N_PRIVATE_KEY` and `SIGNER_N_ADDRESS` (others optional).
 
 In production, copy only `tx_folder/payload/payload.json` to each signer server and copy back the `tx_folder/signature/signature-*.json` files to the executor (or use your own transport).
+
+### AWS Secrets Manager (optional)
+
+To load signer keys from AWS instead of env:
+
+1. **Create 3 secrets** in AWS Secrets Manager (e.g. names `multisig/production/signer-1`, `multisig/production/signer-2`, `multisig/production/signer-3`).  
+   You can do it manually, or run `npm run store:secrets` with `AWS_SIGNERS_SECRET_PREFIX` set and `SIGNER_*_PRIVATE_KEY` / `SIGNER_*_ADDRESS` in `.env` to push from env to AWS.  
+   Each secret value must be JSON:
+   ```json
+   { "privateKey": "0x...", "address": "0x..." }
+   ```
+2. **IAM**: Grant the role/user running coordinator and signer servers `secretsmanager:GetSecretValue` on those secrets (and optionally `kms:Decrypt` if using a CMK).
+3. **Env**: Set in the environment (or `.env`) where you run the servers:
+   - `USE_AWS_SECRETS=1`
+   - `AWS_SIGNERS_SECRET_PREFIX=multisig/production` (match the prefix used in step 1)
+   - Optional: `AWS_REGION=us-east-1` (default is `us-east-1`)
+4. Run the flow as usual: `server:coordinator` → `server:signer-1`, `server:signer-2`, `server:signer-3` → `server:executor`. Keys are loaded from AWS at startup.
+
+**Local/dev**: Omit `USE_AWS_SECRETS` and keep using `SIGNER_1_PRIVATE_KEY`, `SIGNER_1_ADDRESS`, etc. in `.env`.

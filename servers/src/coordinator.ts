@@ -20,7 +20,7 @@ const ERC20_ABI = [
   'function transferFrom(address from, address to, uint256 amount) returns (bool)'
 ]
 
-async function main() {
+export async function main() {
   const tokenAddress = process.env.POLYGON_TEST_tUSDC!
   const wallet1Address =
     process.env.WALLET_1_ADDRESS || process.env.SIGNER_1_ADDRESS!
@@ -36,7 +36,7 @@ async function main() {
     amount
   ])
 
-  const config = getFullConfig()
+  const config = await getFullConfig()
   const manager = new SafeMultisigManager(config)
   await manager.initialize()
 
@@ -56,7 +56,9 @@ async function main() {
   console.log('Next: run signer-server-1, signer-server-2, signer-server-3, then executor.')
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+}

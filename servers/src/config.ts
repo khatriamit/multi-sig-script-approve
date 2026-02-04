@@ -10,6 +10,7 @@ import {
   OperationType
 } from '@safe-global/safe-core-sdk-types'
 import { ethers } from 'ethers'
+import { getWalletPrivateKey } from '../aws/fetch-secrets'
 
 // ============================================================================
 // MULTI-SERVER SIGNING PAYLOADS
@@ -403,23 +404,31 @@ export function ensureTxFolders(): void {
   fs.mkdirSync(path.resolve(cwd, SIGNATURE_FOLDER), { recursive: true })
 }
 
-const signers: SignerConfig[] = [
-  {
-    privateKey: process.env.SIGNER_1_PRIVATE_KEY!,
-    address: process.env.SIGNER_1_ADDRESS!
-  },
-  {
-    privateKey: process.env.SIGNER_2_PRIVATE_KEY!,
-    address: process.env.SIGNER_2_ADDRESS!
-  },
-  {
-    privateKey: process.env.SIGNER_3_PRIVATE_KEY!,
-    address: process.env.SIGNER_3_ADDRESS!
-  }
-]
+async function getSigners(): Promise<SignerConfig[]> {
+  return [
+    {
+      privateKey: await getWalletPrivateKey(process.env.BACKEND_WALLET_1!) as string,
+      address: process.env.SIGNER_1_ADDRESS!
+    },
+    {
+      privateKey: await getWalletPrivateKey(process.env.BACKEND_WALLET_2!) as string,
+      address: process.env.SIGNER_2_ADDRESS!
+    },
+    {
+      privateKey: await getWalletPrivateKey(process.env.BACKEND_WALLET_3!) as string,
+      address: process.env.SIGNER_3_ADDRESS!
+    }
+  ]
+}
 
-export function getSignerOnlyConfig(signerIndex: 1 | 2 | 3): SafeConfig {
-  const signer = signers[signerIndex - 1]
+/**
+ * Get config for a single signer by wallet key. Fetches only that wallet's secret from AWS.
+ * Each signer server should pass its allocated wallet key (e.g. BACKEND_WALLET_1).
+ */
+export async function getSignerOnlyConfig(signerIndex: 1 | 2 | 3, walletKey: string): Promise<SafeConfig> {
+  const privateKey = (await getWalletPrivateKey(walletKey)) as string
+  const address = process.env[`SIGNER_${signerIndex}_ADDRESS`]!
+  const signer: SignerConfig = { privateKey, address }
   return {
     rpcUrl: process.env.POLYGON_AMOY_RPC!,
     chainId: BigInt(POLYGON_AMOY_CHAIN_ID),
@@ -430,7 +439,8 @@ export function getSignerOnlyConfig(signerIndex: 1 | 2 | 3): SafeConfig {
   }
 }
 
-export function getFullConfig(): SafeConfig {
+export async function getFullConfig(): Promise<SafeConfig> {
+  const signers = await getSigners()
   return {
     rpcUrl: process.env.POLYGON_AMOY_RPC!,
     chainId: BigInt(POLYGON_AMOY_CHAIN_ID),
@@ -441,6 +451,7 @@ export function getFullConfig(): SafeConfig {
   }
 }
 
+/** Signer address from env for the given index (no AWS fetch). */
 export function getSignerAddress(signerIndex: 1 | 2 | 3): string {
-  return signers[signerIndex - 1].address
+  return process.env[`SIGNER_${signerIndex}_ADDRESS`]!
 }
